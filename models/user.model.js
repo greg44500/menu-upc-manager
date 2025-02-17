@@ -22,18 +22,30 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ["superAdmin", "manager", "user"],
-    required: true
+    default: "user"
   },
   specialization: {
     type: String,
     enum: ["cuisine", "service"],
     required: true
   },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
   isTemporaryPassword: {
     type: Boolean,
     default: true
   }, // Indique si c'est un mot de passe provisoire
-
+  temporaryPasswordExpires: {
+    type: Date
+  },
+  resetToken: {
+    type: String
+  },
+  resetTokenExpires: {
+    type: Date
+  },
   assignedClasses: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Classroom"
@@ -65,7 +77,12 @@ const userSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
-
+/**
+ * Vérification du mot de passe
+ */
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 /**
  * Hash du mot de passe avant sauvegarde
  */
@@ -75,12 +92,29 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-/**
- * Vérification du mot de passe
- */
-userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+
+// Vérifie si le mot de passe provisoire est encore valide
+userSchema.methods.isTempPasswordValid = function () {
+  return this.isTemporaryPassword === true && this.temporaryPasswordExpires > Date.now();
 };
+//
+// ======= MÉTHODES ======= //
+//
+userSchema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.password;
+  delete obj.resetToken;
+  delete obj.resetTokenExpires;
+  return obj;
+};
+//
+// ======= PRE-HOOKS ======= //
+//
+userSchema.pre("save", function (next) {
+  if (!this.isModified("password")) return next();
+  console.log(`Mot de passe mis à jour pour ${this.email}`);
+  next();
+});
 
 // /**
 //  * Génération d'un mot de passe temporaire

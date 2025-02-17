@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
+const crypto = require("crypto")
 const UserModel = require('../models/user.model');
+const sendMail = require('../utils/sendMail')
 const errorHandler = require('../middlewares/errorHandler');
 
 const {
@@ -55,8 +57,8 @@ const updatePassword = asyncHandler(async (req, res, next) => {
   }
 
   // Hash du nouveau mot de passe avant de sauvegarder
-
-  user.password = newPassword
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(newPassword, salt);
   user.isTemporaryPassword = false
   await user.save();
 
@@ -65,6 +67,80 @@ const updatePassword = asyncHandler(async (req, res, next) => {
     message: "Mot de passe mis à jour avec succès"
   });
 });
+// @desc : Reset Password Request
+// @Method : POST /api/users/request-password-reset
+// @Access : Private
+const requestPasswordReset = asyncHandler(async (req, res, next) => {
+  const {
+    email
+  } = req.body;
+  const user = await UserModel.findOne({
+    email
+  })
+
+  if (!user) {
+    res.status(404);
+    throw new Error('Identité invalide');
+  }
+
+  // Générer un token sécurisé
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  const resetTokenExpires = new Date(Date.now() + 3600000); // Expire dans 1h
+
+  // Sauvegarder dans la base de données
+  user.resetToken = resetToken;
+  user.resetTokenExpires = resetTokenExpires;
+  await user.save();
+
+
+  // Envoyer un email avec le lien de réinitialisation (exemple simplifié)
+  console.log(`Lien de réinitialisation: https://ton-site.com/reset-password?token=${resetToken}`);
+
+  // URL de réinitialisation
+  const resetUrl = `https://ton-site.com/reset-password?token=${resetToken}`;
+
+  // (Optionnel) Envoyer l'email avec le lien de réinitialisation
+  await sendMail(user.email, "Réinitialisation de votre mot de passe", `Cliquez sur ce lien pour réinitialiser votre mot de passe : ${resetUrl}`);
+
+  // Envoyer une réponse JSON au client
+  res.status(200).json({
+    message: "Email de réinitialisation envoyé si l'utilisateur existe"
+  });
+})
+
+// @desc : Reset password
+// @Method : GET /api/users/reset-password
+// @Access : Private
+
+const resetPassword = asyncHandler(async (req, res, next) => {
+  const {
+    token,
+    password
+  } = req.body;
+  const user = await UserModel.findOne({
+    resetToken: token,
+    resetTokenExpires: {
+      $gt: Date.now()
+    }, // Vérifier l'expiration
+  });
+  if (!user) {
+    res.status(404);
+    throw new Error('Identité invalide');
+  }
+
+  // Hacher le nouveau mot de passe
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(password, salt);
+
+  // Supprimer le resetToken après utilisation
+  user.isTemporaryPassword = false;
+  user.resetToken = undefined;
+  user.resetTokenExpires = undefined;
+  await user.save();
+  res.json({
+    message: "Mot de passe réinitialisé avec succès."
+  });
+})
 
 // @desc : Get trainers list
 // @Method : GET /api/users/
@@ -111,6 +187,8 @@ const deleteTeacher = asyncHandler(async (req, res) => {
 module.exports = {
   getUserProfile,
   updatePassword,
+  requestPasswordReset,
+  resetPassword,
   getAllTeachers,
   deleteTeacher
 };

@@ -12,6 +12,7 @@ const createUser = asyncHandler(async (req, res) => {
         email,
         password,
         role,
+        isActive,
         specialization,
         assignedClasses,
         replacementClasses,
@@ -49,24 +50,26 @@ const createUser = asyncHandler(async (req, res) => {
             email,
             password,
             role,
+            isActive,
             specialization,
+            isTemporaryPassword: true,
+            temporaryPasswordExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
             assignedClasses: assignedClasses || [],
             replacementClasses: replacementClasses || [],
             assignedProgressions: assignedProgressions || [],
             replacementProgressions: replacementProgressions || [],
-            isTemporaryPassword: true
         });
 
-        const savedUser = await newUser.save();
+        const user = await newUser.save();
 
-        // Nettoyage des données sensibles
-        const userResponse = savedUser.toObject();
-        delete userResponse.password;
+        // // Nettoyage des données sensibles
+        // const userResponse = savedUser.toObject();
+        // delete userResponse.password;
 
         return res.status(201).json({
             success: true,
             message: 'Utilisateur créé avec succès',
-            data: userResponse
+            data: user
         });
     } catch (error) {
         return res.status(500).json({
@@ -98,11 +101,22 @@ const login = asyncHandler(async (req, res) => {
 
     // Vérification du mot de passe
     const isPasswordValid = await user.matchPassword(password);
+    console.log(isPasswordValid)
     if (!isPasswordValid) {
         res.status(401);
         throw new Error('Email ou mot de passe incorrect');
     }
-
+    // Vérification du type de mmot de passe (temporaire et expiré ou non) 
+    const now = new Date()
+    if (user.temporaryPasswordExpires < now) {
+        res.status(401);
+        throw new Error('Votre mot de passe a expiré');
+    }
+    // Vérifier si c'est un mot de passe temporaire
+    const mustChangePassword = user.isTemporaryPassword;
+    if (mustChangePassword === true) {
+        console.log("Votre mot de passe est temporaire, changez le avant l'expiration !!!")
+    }
     // Création d'une nouvelle session
     const session = new Session({
         userId: user._id,
