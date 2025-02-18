@@ -9,21 +9,23 @@ const {
     createClassroom,
     updateClassroom,
     getOneClassroom,
-    getAllClassrooms
+    getAllClassrooms,
+    deleteOneClassroom,
+    deleteAllClassrooms
 } = require('../controllers/classroom.controllers');
 
 // CLASSROOMS CRUD 
-router.post('/create-classroom', createClassroom);
-router.put('/update-classroom/:id', updateClassroom);
+router.post('/create-classroom', createClassroom); //authenticateUser, authorizeRoles(['superAdmin', 'manager'])
+router.put('/update-classroom/:id', updateClassroom); //authenticateUser, authorizeRoles(['superAdmin', 'manager'])
 
-router.get('/:id', getOneClassroom)
+router.get('/:id', getOneClassroom) //authenticateUser
 router.get('/', getAllClassrooms ); //authenticateUser
 
 // SPECIAL MANAGER AND SUPERADMIN
-router.delete('delete-one-classroom/:id', )
+router.delete('/:id',deleteOneClassroom ) //authenticateUser, authorizeRoles(['superAdmin', 'manager'])
 
 // PROTECTED FOR SUPERADMIN ONLY
-router.delete('delete-all-classrooms', )
+router.delete('/',deleteAllClassrooms ) // authenticateUser, authorizeRoles(['superAdmin']) 
 
 
 module.exports = router

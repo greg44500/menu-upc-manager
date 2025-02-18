@@ -11,9 +11,9 @@ const {
   canAccessOwnData
 } = require('../helpers/user.helper');
 
-// @desc : Get user Profile
-// @Method : GET /api/users/profile
-// @Access : private, superAdmin
+// **@desc : Get user Profile
+// **@Method : GET /api/users/profile
+// **@Access : private, superAdmin
 const getUserProfile = asyncHandler(async (req, res, next) => {
   if (!isValidObjectId(req.user.id)) {
     return next(new Error("ID utilisateur invalide"));
@@ -32,9 +32,9 @@ const getUserProfile = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @Desc : update password
-// @Method : PATCH /api/users/password
-// @Access : private
+// **@Desc : update password
+// **@Method : PATCH /api/users/password
+// **@Access : private
 const updatePassword = asyncHandler(async (req, res, next) => {
   const {
     newPassword
@@ -68,7 +68,7 @@ const updatePassword = asyncHandler(async (req, res, next) => {
   });
 });
 // **@desc : Reset Password Request
-//** */ @Method : POST /api/users/request-password-reset
+// **@Method : POST /api/users/request-password-reset
 // **@Access : Private
 const requestPasswordReset = asyncHandler(async (req, res, next) => {
   const {
@@ -139,9 +139,9 @@ const resetPassword = asyncHandler(async (req, res, next) => {
   });
 })
 
-// @desc : Get trainers list
-// @Method : GET /api/users/
-// @Access : superAdmin, manager
+// **@desc : Get trainers list
+// **@Method : GET /api/users/
+// **@Access : superAdmin, manager
 const getAllTeachers = asyncHandler(async (req, res) => {
   const teachers = await UserModel.find({
       role: 'user'
@@ -158,9 +158,9 @@ const getAllTeachers = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc : Delete One trainer
-// @Method : DELETE /api/users/:id
-// @Access : superAdmin
+// **@desc : Delete One trainer
+// **@Method : DELETE /api/users/:id
+// **@Access : superAdmin
 const deleteTeacher = asyncHandler(async (req, res) => {
   const {
     id

@@ -130,7 +130,6 @@ const getOneClassroom = asyncHandler(async (req, res, next) => {
         success: true,
         data: searchClassroom
     })
-
 })
 // **@desc : Get All Classrooms
 // **@Method : GET /api/classrooms/get-all-classrooms
@@ -149,9 +148,51 @@ const getAllClassrooms = asyncHandler(async (req, res) => {
 });
 
 
+// **@desc : Delete One Classroom
+// **@Method : DELETE /api/classrooms/:id
+// ** @Access : superAdmin, manager
+const deleteOneClassroom = asyncHandler(async (req, res, next) => {
+    const {
+        id
+    } = req.params
+
+    const searchClassroom = await Classroom.findByIdAndDelete(id)
+    if (!isValidObjectId(id)) {
+        return next(new Error("ID Classe invalide"));
+    }
+    if (!searchClassroom) {
+        return next(new Error("Ressource introuvable"));
+    }
+    res.status(200).json({
+        success: true,
+        message: "Classe supprimée !!",
+    })
+})
+
+// **@desc : Delete One Classroom
+// **@Method : DELETE /api/classrooms/:id
+// ** @Access : superAdmin, manager
+const deleteAllClassrooms = asyncHandler(async (req, res, next) => {
+  
+    const classroomToDelete = await Classroom.deleteMany()
+
+    if (!classroomToDelete) {
+        return next(new Error("Ressource introuvable"));
+    }
+    res.status(200).json({
+        success: true,
+        message: "Toutes les classes ont été supprimées avec succés !!",
+    })
+})
+
+
+
+
 module.exports = {
     createClassroom,
     updateClassroom,
     getOneClassroom,
     getAllClassrooms,
+    deleteOneClassroom,
+    deleteAllClassrooms,
 }
