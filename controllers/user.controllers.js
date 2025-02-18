@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require("crypto")
 const UserModel = require('../models/user.model');
 const sendMail = require('../utils/sendMail')
-const errorHandler = require('../middlewares/errorHandler');
+// const errorHandler = require('../middlewares/errorHandler');
 
 const {
   isValidObjectId,
@@ -67,9 +67,9 @@ const updatePassword = asyncHandler(async (req, res, next) => {
     message: "Mot de passe mis à jour avec succès"
   });
 });
-// @desc : Reset Password Request
-// @Method : POST /api/users/request-password-reset
-// @Access : Private
+// **@desc : Reset Password Request
+//** */ @Method : POST /api/users/request-password-reset
+// **@Access : Private
 const requestPasswordReset = asyncHandler(async (req, res, next) => {
   const {
     email
@@ -108,9 +108,9 @@ const requestPasswordReset = asyncHandler(async (req, res, next) => {
   });
 })
 
-// @desc : Reset password
-// @Method : GET /api/users/reset-password
-// @Access : Private
+//**  @desc : Reset password
+//**  @Method : POST /api/users/reset-password
+//**  @Access : Private
 
 const resetPassword = asyncHandler(async (req, res, next) => {
   const {
@@ -128,12 +128,9 @@ const resetPassword = asyncHandler(async (req, res, next) => {
     throw new Error('Identité invalide');
   }
 
-  // Hacher le nouveau mot de passe
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(password, salt);
-
   // Supprimer le resetToken après utilisation
   user.isTemporaryPassword = false;
+  user.password = password
   user.resetToken = undefined;
   user.resetTokenExpires = undefined;
   await user.save();

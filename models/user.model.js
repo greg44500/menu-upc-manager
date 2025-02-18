@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema({
     ref: "Classroom"
   }], // Classes permanentes
   replacementClasses: [{
-    class: {
+    classroom: {
       type: mongoose.Schema.Types.ObjectId, ref: "Classroom"
     },
     weeks: [Number] // Semaines où l'utilisateur remplace un autre formateur

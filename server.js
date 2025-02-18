@@ -6,7 +6,8 @@ const port = process.env.PORT || 8000;
 const connectDB = require("./config/db.js");
 const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/auth.routes.js");
-const userRoutes = require ("./routes/user.routes.js")
+const userRoutes = require("./routes/user.routes.js")
+const classroomRoutes = require("./routes/classroom.routes.js")
 const errorHandler = require("./middlewares/errorHandler")
 const morgan = require('morgan')
 
@@ -31,6 +32,7 @@ connectDB(); //Methode de connexion MongoDB
 // MAIN ROUTES 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/classrooms", classroomRoutes)
 
 
 app.listen(port, () => {
