@@ -10,6 +10,10 @@ const menuSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Item"
     }],
+    isMenuValidate : {
+        type: Boolean,
+        default: false
+    },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

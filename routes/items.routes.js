@@ -24,7 +24,7 @@ router.route("/mine")
 
 router.route("/:id")
     .get(authenticateUser, getItemById) // Détail
-    .put(authenticateUser, authorizeRoles(["formateur", "manager", "superAdmin"]), updateItem) // Modification
+    .put(authenticateUser, authorizeRoles(["user", "manager", "superAdmin"]), updateItem) // Modification
     .delete(authenticateUser, authorizeRoles(["superAdmin"]), deleteItem); // Suppression
 
 module.exports = router;

@@ -43,7 +43,7 @@ progressionSchema.pre('save', async function (next) {
 
         for (let week of this.weeks) {
             let existingService = await Service.findOne({
-                class: this.class,
+                classroom: this.class,
                 weekNumber: week.weekNumber,
             });
 

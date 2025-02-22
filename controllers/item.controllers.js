@@ -1,4 +1,5 @@
 const asyncHandler = require("express-async-handler");
+const mongoose = require("mongoose")
 const Item = require("../models/item.model");
 const {
     validateObjectId
@@ -55,13 +56,16 @@ const getAllItems = asyncHandler(async (req, res) => {
 // ** @route   GET /api/items/mine
 // ** @access  Tous les rôles
 const getItemsByUsers = asyncHandler(async (req, res) => {
-    const {
-       id
-    } = req.user
-    const items = await Item.find().sort({
+    const userId = req.user.id
+
+    const items = await Item.find({
+        author: userId
+    }).sort({
         createdAt: -1
     }).populate('author');
+    console.log(req.user.id)
     res.status(200).json({
+
         succes: true,
         count: items.length,
         data: items.length ? items : "Rien à afficher"
@@ -98,14 +102,17 @@ const updateItem = asyncHandler(async (req, res) => {
     const {
         id
     } = req.params;
+
     const {
         name,
         category
     } = req.body;
 
-    if (!validateObjectId(id)) {
-        res.status(400);
-        throw new Error("ID invalide.");
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        return res.status(400).json({
+            success: false,
+            message: "ID invalide"
+        });
     }
 
     let item = await Item.findById(id);
@@ -115,10 +122,12 @@ const updateItem = asyncHandler(async (req, res) => {
     }
 
     // Vérification des droits : Seul le créateur ou un admin peut modifier
-    if (req.user.role !== "admin" && req.user._id.toString() !== item.createdBy.toString()) {
+    if (req.user.role !== "superAdmin" && req.user.id.toString() !== item.author.toString() || item.author.toString() !== req.user.id) {
         res.status(403);
         throw new Error("Accès refusé.");
     }
+    console.log(req.user.id)
+    console.log(req.user.id.toString())
 
     // Vérifier si le nouveau nom est unique
     if (name && name.trim() !== item.name) {
@@ -130,6 +139,7 @@ const updateItem = asyncHandler(async (req, res) => {
             throw new Error("Un item avec ce nom existe déjà.");
         }
     }
+
 
     item.name = name ? name.trim() : item.name;
     item.category = category || item.category;
