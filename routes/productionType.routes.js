@@ -15,17 +15,18 @@ const {
 } = require('../controllers/productionType.controller');
 
 // Main routes for Production Type
-router.post("/", authenticateUser,
-    authorizeRoles(["superAdmin", "manager"]), createProductionType)
-router.put("/:id", authenticateUser,
-    authorizeRoles(["superAdmin", "manager"]), updateProductionType)
-router.get("/:id", authenticateUser, getOneProductionType)
-router.delete("/:id", authenticateUser,
-    authorizeRoles(["superAdmin"]), deleteOneProductionType)
-router.get("/", authenticateUser, getAllProductionTypes)
-
-// PROTECTED ROUTE DELETE ALL
-router.delete("/", authenticateUser,
-    authorizeRoles(["superAdmin"]), deleteAllProductionTypes)
+router.route("/")
+    .post(authenticateUser,
+        authorizeRoles(["superAdmin", "manager"]), createProductionType) //CREATE ONE
+    .get(authenticateUser, getAllProductionTypes) // GET ALL
+    .delete(authenticateUser,
+        authorizeRoles(["superAdmin"]), deleteAllProductionTypes) // DELETE ALL
+        
+router.route("/:id")
+    .put(authenticateUser,
+        authorizeRoles(["superAdmin", "manager"]), updateProductionType) // UPDATE ONE
+    .get(authenticateUser, getOneProductionType) // GET ONE
+    .delete(authenticateUser,
+        authorizeRoles(["superAdmin"]), deleteOneProductionType) // DELETE ONE
 
 module.exports = router

@@ -16,17 +16,21 @@ const {
 } = require('../controllers/location.controller');
 
 // Main routes for Location
-router.post("/", authenticateUser,
-    authorizeRoles(["superAdmin", "manager"]), createLocation)
-router.put("/:id", authenticateUser,
-    authorizeRoles(["superAdmin", "manager"]), updateLocation)
-router.get("/:id", authenticateUser, getOneLocation)
-router.delete("/:id", authenticateUser,
-    authorizeRoles(["superAdmin"]), deleteOneLocation)
-router.get("/", authenticateUser, getAllLocations)
+router.route("/")
+    .post(authenticateUser,
+        authorizeRoles(["superAdmin", "manager"]), createLocation) // CREATE ONE
+    .get(authenticateUser, getAllLocations) // READ ALL
+    .delete(authenticateUser,
+        authorizeRoles(["superAdmin"]), deleAllLocations) // DELETE ALL
+        
+router.route("/:id")
+    .put(authenticateUser,
+        authorizeRoles(["superAdmin", "manager"]), updateLocation) // UPDATE ONE
+    .get(authenticateUser, getOneLocation) // GET ONE
+    .delete(authenticateUser,
+        authorizeRoles(["superAdmin"]), deleteOneLocation) // DELETE ONE
 
-// PROTECTED ROUTE DELETE ALL
-router.delete("/", authenticateUser,
-    authorizeRoles(["superAdmin"]), deleAllLocations)
+
+
 
 module.exports = router

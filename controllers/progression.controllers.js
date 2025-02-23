@@ -8,9 +8,9 @@ const {
 } = require('../helpers/user.helper');
 
 /**
- * @desc    Créer une nouvelle progression avec génération automatique des services
- * @route   POST /api/progressions
- * @access  Admin / Manager (via middleware)
+ ** @desc    Créer une nouvelle progression avec génération automatique des services
+ ** @route   POST /api/progressions
+ ** @access  Admin / Manager (via middleware)
  */
 const createProgression = asyncHandler(async (req, res) => {
     const {
@@ -95,9 +95,9 @@ const createProgression = asyncHandler(async (req, res) => {
 
 
 /**
- * @desc    Créer une nouvelle progression avec génération automatique des services
- * @route   POST /api/progressions
- * @access  Admin / Manager (via middleware)
+ ** @desc    Créer une nouvelle progression avec génération automatique des services
+ ** @route   POST /api/progressions
+ ** @access  Admin / Manager (via middleware)
  */
 // Modifier une progression existante
 const updateProgression = asyncHandler(async (req, res) => {
@@ -176,9 +176,9 @@ const updateProgression = asyncHandler(async (req, res) => {
     res.status(200).json({ message: 'Progression mise à jour avec succès', progression });
 });
 
-// @desc    Supprimer une progression par ID
-// @route   DELETE /api/progressions/:id
-// @access  Admin uniquement (géré par middleware)
+// **@desc    Supprimer une progression par ID
+// **@route   DELETE /api/progressions/:id
+// **@access  Admin uniquement (géré par middleware)
 const deleteOneProgression = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
@@ -209,9 +209,9 @@ const deleteOneProgression = asyncHandler(async (req, res) => {
     res.status(200).json({ message: 'Progression supprimée avec succès' });
 });
 
-// @desc    Supprimer toutes les progressions - RAZ
-// @route   DELETE /api/progressions
-// @access  Admin uniquement (géré par middleware)
+// **@desc    Supprimer toutes les progressions - RAZ
+// **@route   DELETE /api/progressions
+// **@access  Admin uniquement (géré par middleware)
 const deleteAllProgressions = asyncHandler(async (req, res) => {
     // Suppression de tous les services liés aux progressions
     await Service.deleteMany({});

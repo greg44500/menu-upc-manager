@@ -9,7 +9,7 @@ const {
 } = require('../helpers/user.helper');
 
 // ** @desc : Create location
-// ** @Method : POST /api/locations/
+// ** @Route : POST /api/locations/
 // ** @Access : superAdmin
 const createLocation = asyncHandler(async (req, res) => {
     const {
@@ -54,7 +54,7 @@ const createLocation = asyncHandler(async (req, res) => {
 });
 
 // ** @Desc : update Location Name
-// ** @Method : PUT /api/locations/:id
+// ** @Route : PUT /api/locations/:id
 // ** @Access : superAdmin, manager
 
 const updateLocation = asyncHandler(async (req, res, next) => {
@@ -87,7 +87,7 @@ const updateLocation = asyncHandler(async (req, res, next) => {
 })
 
 // ** @Desc : Get One Location
-// ** @Method : PUT /api/locations/:id
+// ** @Route : PUT /api/locations/:id
 // ** @Access : superAdmin, manager
 
 const getOneLocation = asyncHandler(async (req, res, next) => {
@@ -114,7 +114,7 @@ const getOneLocation = asyncHandler(async (req, res, next) => {
 })
 
 // ** @Desc : Get All Locations
-// ** @Method : GET /api/locations/
+// ** @Route : GET /api/locations/
 // ** @Access : superAdmin, manager
 
 const getAllLocations = asyncHandler(async (req, res, next) => {
@@ -131,7 +131,9 @@ const getAllLocations = asyncHandler(async (req, res, next) => {
         data: locations.length ? locations : "Aucun local trouvé",
     });
 })
-
+// ** @Desc : Delete One Location
+// ** @Route : DELETE /api/locations/:id
+// ** @Access : superAdmin, manager
 const deleteOneLocation = asyncHandler(async (req, res, next) => {
     const {
         id
@@ -150,7 +152,9 @@ const deleteOneLocation = asyncHandler(async (req, res, next) => {
         message: "Local supprimé avec succès",
     });
 })
-
+// ** @Desc : Delete All Locations
+// ** @Route : DELETE /api/locations
+// ** @Access : superAdmin, manager
 const deleAllLocations = asyncHandler(async (req, res, next) => {
 
     const locations = await Location.deleteMany()

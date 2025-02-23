@@ -9,7 +9,7 @@ const {
 } = require('../helpers/user.helper');
 
 // ** @desc : Create Service Type
-// ** @Method : POST /api/productionTypes
+// ** @Route : POST /api/productionTypes
 // ** @Access : superAdmin
 const createProductionType = asyncHandler(async (req, res) => {
     const {
@@ -54,7 +54,7 @@ const createProductionType = asyncHandler(async (req, res) => {
 });
 
 // ** @Desc : update ProductionType Name
-// ** @Method : PUT /api/production-type/:id
+// ** @Route : PUT /api/production-type/:id
 // ** @Access : superAdmin, manager
 
 const updateProductionType = asyncHandler(async (req, res, next) => {
@@ -87,7 +87,7 @@ const updateProductionType = asyncHandler(async (req, res, next) => {
 })
 
 // ** @Desc : Get One Production Type
-// ** @Method : PUT /api/locations/:id
+// ** @Route : GET /api/locations/:id
 // ** @Access : superAdmin, manager
 
 const getOneProductionType = asyncHandler(async (req, res, next) => {
@@ -114,7 +114,7 @@ const getOneProductionType = asyncHandler(async (req, res, next) => {
 })
 
 // ** @Desc : Get All Production Type
-// ** @Method : GET /api/locations/
+// ** @Route : GET /api/locations/
 // ** @Access : superAdmin, manager
 
 const getAllProductionTypes = asyncHandler(async (req, res, next) => {
@@ -131,7 +131,9 @@ const getAllProductionTypes = asyncHandler(async (req, res, next) => {
         data: productionTypes.length ? productionTypes : "Aucun type de production trouvé",
     });
 })
-
+// ** @Desc : Delete All Production Type
+// ** @Route : DELETE /api/locations/:id
+// ** @Access : superAdmin, manager
 const deleteOneProductionType = asyncHandler(async (req, res, next) => {
     const {
         id
@@ -150,7 +152,9 @@ const deleteOneProductionType = asyncHandler(async (req, res, next) => {
         message: "Type de production supprimé avec succès",
     });
 })
-
+// ** @Desc : Delete All Production Type - RAZ
+// ** @Route : DELETE /api/locations/
+// ** @Access : superAdmin, manager
 const deleteAllProductionTypes = asyncHandler(async (req, res, next) => {
 
     const productionTypes = await ProductionType.deleteMany()
