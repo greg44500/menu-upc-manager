@@ -53,7 +53,7 @@ const createUser = asyncHandler(async (req, res) => {
             isActive,
             specialization,
             isTemporaryPassword: true,
-            temporaryPasswordExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            temporaryPasswordExpires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),// 1 mois
             assignedClasses: assignedClasses || [],
             replacementClasses: replacementClasses || [],
             assignedProgressions: assignedProgressions || [],

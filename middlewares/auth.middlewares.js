@@ -129,7 +129,6 @@ exports.checkResourceAccess = (model) => {
         success: false,
         message: "Erreur de vérification des droits"
       });
-      // Ne pas placer next() ici pour éviter de continuer en cas d'erreur
     }
   };
 };

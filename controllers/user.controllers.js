@@ -60,6 +60,7 @@ const updatePassword = asyncHandler(async (req, res, next) => {
   const salt = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(newPassword, salt);
   user.isTemporaryPassword = false
+  user.requirePasswordChange = false;
   await user.save();
 
   res.status(200).json({
@@ -85,7 +86,7 @@ const requestPasswordReset = asyncHandler(async (req, res, next) => {
 
   // Générer un token sécurisé
   const resetToken = crypto.randomBytes(32).toString("hex");
-  const resetTokenExpires = new Date(Date.now() + 3600000); // Expire dans 1h
+  const resetTokenExpires = new Date(Date.now() + 24*3600000); // Expire dans 24H
 
   // Sauvegarder dans la base de données
   user.resetToken = resetToken;
@@ -130,6 +131,7 @@ const resetPassword = asyncHandler(async (req, res, next) => {
 
   // Supprimer le resetToken après utilisation
   user.isTemporaryPassword = false;
+  user.requirePasswordChange = false;
   user.password = password
   user.resetToken = undefined;
   user.resetTokenExpires = undefined;

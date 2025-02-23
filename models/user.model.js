@@ -46,7 +46,7 @@ const userSchema = new mongoose.Schema({
   resetTokenExpires: {
     type: Date
   },
-  assignedClasses: [{
+  assignedClassrooms: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Classroom"
   }], // Classes permanentes

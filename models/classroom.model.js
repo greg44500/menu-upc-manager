@@ -8,7 +8,7 @@ const classroomSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        enum: ['CUIS', 'CSR', 'AC', 'ACSR', 'MHR', 'CDR', 'BAR', 'SOM'],
+        enum: ['CUIS', 'CSHCR', 'CSR', 'AC', 'ACSR', 'MHR', 'CDR', 'BAR', 'SOM'],
         required: true
     },
     alternationNumber: {
@@ -25,12 +25,7 @@ const classroomSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    assignedTeachers: [{
-        teacherId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        }
-    }]
+    assignedTeachers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, {
     timestamps: true
 });
