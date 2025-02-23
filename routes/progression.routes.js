@@ -3,21 +3,33 @@ const {
     authenticateUser,
     authorizeRoles
 } = require('../middlewares/auth.middlewares');
-const { createProgression, updateProgression, deleteOneProgression, deleteAllProgressions } = require("../controllers/progression.controllers");
+const {
+    createProgression,
+    updateProgression,
+    deleteOneProgression,
+    deleteAllProgressions,
+    getProgressionById,
+    getAllProgressions,
+    getProgressionsByClassroom,
+    getProgressionsByTeacher
+} = require("../controllers/progression.controllers");
 
 const router = express.Router();
 
 router.route("/")
     .post(createProgression) // Ajout authenticateUser, authorizeRoles(["user", "manager", "sueperAdmin"]), 
-    .get() // Liste de toutes les progressions
+    .get(getAllProgressions) // Liste de toutes les progressions
     .delete(deleteAllProgressions)
 
 router.route("/mine")
     .get() // Liste Par Utilisateur
 
 router.route("/:id")
-    .get() // Détail
+    .get(getProgressionById) // Détail
     .put(updateProgression) // Modification
     .delete(deleteOneProgression); // Suppression
+
+router.get("/classroom/:classroomId", getProgressionsByClassroom)
+router.get("/teacher/:teacherId", getProgressionsByTeacher)
 
 module.exports = router;

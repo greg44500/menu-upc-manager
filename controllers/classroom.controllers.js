@@ -16,13 +16,10 @@ const createClassroom = asyncHandler(async (req, res, next) => {
         group,
         certificationSession,
         assignedTeachers,
+        name,
         virtualName
     } = req.body
 
-    // Verification des champs requis
-    if (!diploma || !category || !alternationNumber || !group || !certificationSession) {
-        return next(new Error("Ces champs sont requis"));
-    }
     // Vérifier si une classe avec les mêmes paramètres existe déjà
     const existingClassroom = await Classroom.findOne({
         diploma,
@@ -46,7 +43,7 @@ const createClassroom = asyncHandler(async (req, res, next) => {
             group,
             certificationSession,
             assignedTeachers: assignedTeachers || [],
-            virtualName
+            name: virtualName
         });
 
         const savedClassroom = await newClassroom.save();
