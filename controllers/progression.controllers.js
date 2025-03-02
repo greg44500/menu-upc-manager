@@ -7,11 +7,11 @@ const {
     validateObjectId
 } = require('../helpers/user.helper');
 
-/**
- ** @desc    Créer une nouvelle progression avec génération automatique des services
- ** @route   POST /api/progressions
- ** @access  Admin / Manager (via middleware)
- */
+
+ //** @desc    Créer une nouvelle progression avec génération automatique des services
+ //** @route   POST /api/progressions
+ //** @access  Admin / Manager (via middleware)
+ 
 const createProgression = asyncHandler(async (req, res) => {
     const {
         classrooms,
@@ -96,11 +96,11 @@ const createProgression = asyncHandler(async (req, res) => {
 });
 
 
-/**
- ** @desc  Modifier une progression
- ** @route   PUT /api/progressions
- ** @access  Admin / Manager (via middleware)
- */
+
+// ** @desc  Modifier une progression
+// ** @route   PUT /api/progressions
+// ** @access  Admin / Manager (via middleware)
+
 // Modifier une progression existante
 const updateProgression = asyncHandler(async (req, res) => {
     const {
