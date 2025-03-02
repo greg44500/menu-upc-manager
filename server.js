@@ -13,6 +13,7 @@ const progressionRoutes = require('./routes/progression.routes.js')
 const classroomRoutes = require("./routes/classroom.routes.js")
 const locationRoutes = require("./routes/location.routes.js")
 const productionTypeRoutes = require("./routes/productionType.routes.js")
+const serviceRoutes = require("./routes/service.routes.js")
 const itemRoutes = require("./routes/items.routes.js")
 const errorHandler = require("./middlewares/errorHandler")
 const morgan = require('morgan')
@@ -26,7 +27,6 @@ app.use(morgan("dev"))
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-
 
 app.use(cors());
 
@@ -42,6 +42,7 @@ app.use("/api/progressions", progressionRoutes)
 app.use("/api/classrooms", classroomRoutes)
 app.use("/api/locations", locationRoutes)
 app.use("/api/production-type/", productionTypeRoutes)
+app.use("/api/serivces", serviceRoutes)
 app.use("/api/items", itemRoutes)
 
 

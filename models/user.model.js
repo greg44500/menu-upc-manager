@@ -72,7 +72,7 @@ const userSchema = new mongoose.Schema({
   createdItemsMenus: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Items"
-  }], // Historique des menus créés
+  }], // Historique des items créés pour les menus
 
 }, {
   timestamps: true

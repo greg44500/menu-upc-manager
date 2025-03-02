@@ -4,6 +4,7 @@ const Item = require("../models/item.model");
 const {
     validateObjectId
 } = require("../helpers/user.helper");
+const userModel = require("../models/user.model");
 
 // ** @desc    Créer un nouvel item (unique)
 // ** @route   POST /api/items
@@ -34,6 +35,9 @@ const createItem = asyncHandler(async (req, res) => {
         category,
         author: req.user.id
     });
+    // Ajout de l'Item créé dans l'historique de l'utilisateur
+    const itemHistory = await userModel.findOneAndUpdate(req.user.id)
+    userModel.createdItemsMenus.push(itemHistory)
 
     res.status(201).json(item);
 });

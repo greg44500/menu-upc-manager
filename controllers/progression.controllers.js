@@ -50,7 +50,9 @@ const createProgression = asyncHandler(async (req, res) => {
                 service: newService._id,
                 menu: []
             };
+
         })
+
     );
 
     // Création de la progression avec les services générés
@@ -62,7 +64,7 @@ const createProgression = asyncHandler(async (req, res) => {
         // author: req.user._id,
         // modifiedBy: req.user._id
     });
-
+    console.log(createdServices)
     // Mise à jour des classes : Ajout des formateurs assignés
     await Classroom.updateMany({
         _id: {
@@ -336,30 +338,38 @@ const getAllProgressions = asyncHandler(async (req, res) => {
         })
         .lean();
 
-    res.status(200).json(progressions);
+    res.status(200).json({
+        success: true,
+        count: progressions.length,
+        data : progressions.length ? progressions : [] 
+    });
 });
 
 // @desc    Obtenir les progressions par classe
 // @route   GET /api/progressions/classroom/:classroomId
 // @access  Admin, Manager, Formateur assigné
 const getProgressionsByClassroom = asyncHandler(async (req, res) => {
-    const { classroomId } = req.params;
+    const {
+        classroomId
+    } = req.params;
 
-    const progressions = await Progression.find({ classrooms: classroomId })
+    const progressions = await Progression.find({
+            classrooms: classroomId
+        })
         .populate('classrooms', 'virtualName')
         .populate('teachers', 'firstname lastname email')
         .populate('services.service', 'type date')
         .populate({
-            path: 'services', 
+            path: 'services',
             select: 'items isMenuValidate isRestaurant author'
         })
         .lean();
-       
+
     if (!progressions.length) {
         res.status(404);
         throw new Error("Aucune progression trouvée pour cette classe");
     }
-    
+
     res.status(200).json(progressions);
 });
 
@@ -367,14 +377,18 @@ const getProgressionsByClassroom = asyncHandler(async (req, res) => {
 // @route   GET /api/progressions/teacher/:teacherId
 // @access  Admin, Manager, Formateur assigné
 const getProgressionsByTeacher = asyncHandler(async (req, res) => {
-    const { teacherId } = req.params;
+    const {
+        teacherId
+    } = req.params;
 
-    const progressions = await Progression.find({ teachers: teacherId })
+    const progressions = await Progression.find({
+            teachers: teacherId
+        })
         .populate('classrooms', 'virtualName')
         .populate('teachers', 'firstname lastname email')
         .populate('services.service', 'type date')
         .populate({
-            path: 'services', 
+            path: 'services',
             select: 'items isMenuValidate isRestaurant author'
         })
         .lean();

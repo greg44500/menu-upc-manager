@@ -13,6 +13,9 @@ const {
     getProgressionsByClassroom,
     getProgressionsByTeacher
 } = require("../controllers/progression.controllers");
+const {
+    getServices
+} = require("../controllers/service.controllers");
 
 const router = express.Router();
 
@@ -29,7 +32,12 @@ router.route("/:id")
     .put(updateProgression) // Modification
     .delete(deleteOneProgression); // Suppression
 
+router.route("/:progressionId/services").get(getServices)
+
+
+
 router.get("/classroom/:classroomId", getProgressionsByClassroom)
 router.get("/teacher/:teacherId", getProgressionsByTeacher)
+
 
 module.exports = router;
