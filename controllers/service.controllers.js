@@ -1,6 +1,8 @@
 const asyncHandler = require('express-async-handler');
 const mongoose = require('mongoose');
 const Progression = require('../models/progression.model');
+const Service = require("../models/service.model")
+const Menu = require("../models/menu.model")
 
 // **@desc    Obtenir tous les services
 // **@route   GET /api/progressions/:progressionId/services
@@ -46,101 +48,120 @@ const getServices = asyncHandler(async (req, res) => {
     });
 });
 
+// ** @desc    Obtenir un service spécifique par son ID
+// ** @route   GET /api/progressions/:progressionId/services/:serviceId
+// ** @access  Private (Admin, Manager, User)
+const getServiceById = asyncHandler(async (req, res) => {
+    const {
+        progressionId,
+        serviceId
+    } = req.params;
+
+    // Vérifier simplement si les documents existent
+    const progression = await Progression.findById(progressionId)
+        .populate({
+            path: 'services', //
+            select: 'items isMenuValidate isRestaurant author'
+        })
+        .lean();
+    const service = await Service.findById(serviceId);
+    console.log("requete", req.params)
+    res.status(200).json({
+        progressionExists: !!progression,
+        serviceExists: !!service,
+        progressionData: progression ? {
+            id: progression._id,
+            servicesCount: progression.services.length
+        } : null,
+        serviceData: service ? {
+            id: service._id,
+            serviceDate: service.serviceDate,
+            isRestaurant: service.isRestaurantOpen
+        } : null
+    });
+});
+
 // ** @desc    Modifier un service (Admin) ou un menu (User)
 // ** @route   PUT /api/progressions/:progressionId/services/:serviceId
 // ** @access  Private (User → menu uniquement, Admin → tout)
 const updateServiceOrMenu = asyncHandler(async (req, res) => {
     const { progressionId, serviceId } = req.params;
-    const { role, _id: userId } = req.user; // Rôle et ID de l'utilisateur récupérés via le middleware d'authentification
+    const { role } = req.user; // Rôle récupéré via le middleware
     const updateData = req.body;
 
-    // Récupération optimisée de la progression
-    const progression = await Progression.findById(progressionId)
-        .select('services')
-        .lean();
-        
+    console.log("🔍 Requête reçue :", { progressionId, serviceId, role, updateData });
+
+    // Vérifier si la progression existe
+    const progression = await Progression.findById(progressionId);
     if (!progression) {
         res.status(404);
         throw new Error("Progression non trouvée");
     }
 
-    // Vérification de l'existence du service dans cette progression
-    const serviceIndex = progression.services.findIndex(
+    // Vérifier si le service appartient bien à cette progression
+    const serviceExists = progression.services.some(
         (s) => s.service.toString() === serviceId
     );
-    
-    if (serviceIndex === -1) {
+    if (!serviceExists) {
         res.status(404);
         throw new Error("Service non trouvé dans cette progression");
     }
 
-    // Traitement selon le rôle de l'utilisateur
-    if (role === "admin") {
-        // Pour les administrateurs : ajout du champ lastModifiedBy
-        // Combine les données de mise à jour avec l'information sur qui modifie
-        const adminUpdateData = {
-            ...updateData,
-            lastModifiedBy: userId  // Ajout de l'ID de l'utilisateur qui fait la modification
-        };
-
-        const updatedService = await Service.findByIdAndUpdate(
-            serviceId, 
-            adminUpdateData,
-            {
-                new: true,
-                runValidators: true
-            }
-        );
+    // 🔹 Si l'utilisateur est admin, il peut modifier toutes les infos du service
+    if (role === "superAdmin") {
+        const updatedService = await Service.findByIdAndUpdate(serviceId, updateData, {
+            new: true,
+            runValidators: true
+        });
 
         if (!updatedService) {
             res.status(404);
             throw new Error("Service introuvable");
         }
 
+        console.log("✅ Service mis à jour :", updatedService);
         return res.status(200).json(updatedService);
     }
-    
+
+    // 🔹 Si l'utilisateur est un user, il ne peut modifier que le menu
     if (role === "user") {
-        // Pour les utilisateurs : extraction sécurisée des données du menu
         const { items } = updateData;
-        
-        // Validation du format des items
-        if (items !== undefined && !Array.isArray(items)) {
-            res.status(400);
-            throw new Error("Le format des items du menu est invalide");
+
+        let menu = await Menu.findOne({ service: serviceId });
+
+        if (!menu) {
+            // Si aucun menu n'existe, on en crée un nouveau
+            menu = new Menu({
+                service: serviceId,
+                items: items || [],
+                author: req.user._id
+            });
+        } else {
+            // Si un menu existe déjà, on met à jour uniquement les items
+            menu.items = items || [];
         }
 
-        // Mise à jour ou création du menu avec trace de qui a modifié
-        const updatedMenu = await Menu.findOneAndUpdate(
-            { service: serviceId },
-            {
-                items: items || [],
-                lastModifiedBy: userId  // Ajout de l'ID de l'utilisateur qui fait la modification
-            },
-            {
-                new: true,
-                upsert: true,
-                runValidators: true,
-                setDefaultsOnInsert: true  // Applique les valeurs par défaut du schéma si création
-            }
-        );
-
+        const updatedMenu = await menu.save();
+        console.log("✅ Menu mis à jour :", updatedMenu);
         return res.status(200).json(updatedMenu);
     }
 
-    // Si l'utilisateur a un rôle non géré
     res.status(403);
     throw new Error("Accès interdit");
 });
-
 
 // ** @desc    Supprimer un service spécifique et son menu associé
 // ** @route   DELETE /api/progressions/:progressionId/services/:serviceId
 // ** @access  Private (Admin uniquement)
 
 const deleteService = asyncHandler(async (req, res) => {
-    const { progressionId, serviceId } = req.params;
-    const { role } = req.user;
+    const {
+        progressionId,
+        serviceId
+    } = req.params;
+    const {
+        role
+    } = req.user;
 
     // Vérification du rôle administrateur
     if (role !== "admin") {
@@ -159,7 +180,7 @@ const deleteService = asyncHandler(async (req, res) => {
     const serviceIndex = progression.services.findIndex(
         (s) => s.service.toString() === serviceId
     );
-    
+
     if (serviceIndex === -1) {
         res.status(404);
         throw new Error("Service non trouvé dans cette progression");
@@ -177,7 +198,9 @@ const deleteService = asyncHandler(async (req, res) => {
     }
 
     // Supprimer le menu associé au service
-    await Menu.deleteOne({ service: serviceId });
+    await Menu.deleteOne({
+        service: serviceId
+    });
 
     return res.status(200).json({
         success: true,
@@ -191,8 +214,13 @@ const deleteService = asyncHandler(async (req, res) => {
 // ** @access  Private (Admin uniquement)
 
 const deleteMenu = asyncHandler(async (req, res) => {
-    const { progressionId, serviceId } = req.params;
-    const { role } = req.user;
+    const {
+        progressionId,
+        serviceId
+    } = req.params;
+    const {
+        role
+    } = req.user;
 
     // Vérification du rôle administrateur
     if (role !== "admin") {
@@ -211,15 +239,17 @@ const deleteMenu = asyncHandler(async (req, res) => {
     const serviceExists = progression.services.some(
         (s) => s.service.toString() === serviceId
     );
-    
+
     if (!serviceExists) {
         res.status(404);
         throw new Error("Service non trouvé dans cette progression");
     }
 
     // Supprimer le menu associé au service
-    const deletedMenu = await Menu.findOneAndDelete({ service: serviceId });
-    
+    const deletedMenu = await Menu.findOneAndDelete({
+        service: serviceId
+    });
+
     if (!deletedMenu) {
         res.status(404);
         throw new Error("Menu introuvable pour ce service");
@@ -237,8 +267,12 @@ const deleteMenu = asyncHandler(async (req, res) => {
 // ** @access  Private (Admin uniquement)
 
 const deleteAllServicesForProgression = asyncHandler(async (req, res) => {
-    const { progressionId } = req.params;
-    const { role } = req.user;
+    const {
+        progressionId
+    } = req.params;
+    const {
+        role
+    } = req.user;
 
     // Vérification du rôle administrateur
     if (role !== "admin") {
@@ -257,13 +291,17 @@ const deleteAllServicesForProgression = asyncHandler(async (req, res) => {
     const serviceIds = progression.services.map(s => s.service);
 
     // Supprimer tous les menus associés à ces services
-    const deletedMenusResult = await Menu.deleteMany({ 
-        service: { $in: serviceIds } 
+    const deletedMenusResult = await Menu.deleteMany({
+        service: {
+            $in: serviceIds
+        }
     });
 
     // Supprimer tous les services
-    const deletedServicesResult = await Service.deleteMany({ 
-        _id: { $in: serviceIds } 
+    const deletedServicesResult = await Service.deleteMany({
+        _id: {
+            $in: serviceIds
+        }
     });
 
     // Vider le tableau de services dans la progression
@@ -282,6 +320,7 @@ const deleteAllServicesForProgression = asyncHandler(async (req, res) => {
 
 module.exports = {
     getServices,
+    getServiceById,
     updateServiceOrMenu,
     deleteService,
     deleteMenu,

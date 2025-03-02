@@ -21,6 +21,12 @@ const morgan = require('morgan')
 
 const app = express();
 app.use(express.json());
+
+// Ajoutez ceci au début de votre app.js, avant les autres middlewares
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+    next();
+  });
 app.use(errorHandler)
 
 app.use(morgan("dev"))
@@ -33,6 +39,7 @@ app.use(cors());
 app.use(cookieParser());
 connectDB(); //Methode de connexion MongoDB
 
+
 // JWT
 
 // **MAIN ROUTES 
@@ -41,8 +48,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/progressions", progressionRoutes)
 app.use("/api/classrooms", classroomRoutes)
 app.use("/api/locations", locationRoutes)
-app.use("/api/production-type/", productionTypeRoutes)
-app.use("/api/serivces", serviceRoutes)
+app.use("/api/production-type", productionTypeRoutes)
+app.use("/api/services", serviceRoutes)
 app.use("/api/items", itemRoutes)
 
 
