@@ -85,11 +85,15 @@ const getServiceById = asyncHandler(async (req, res) => {
 // ** @route   PUT /api/progressions/:progressionId/services/:serviceId
 // ** @access  Private (User → menu uniquement, Admin → tout)
 const updateServiceOrMenu = asyncHandler(async (req, res) => {
-    const { progressionId, serviceId } = req.params;
-    const { role } = req.user; // Rôle récupéré via le middleware
+    const {
+        progressionId,
+        serviceId
+    } = req.params;
+    const {
+        role
+    } = req.user; // Rôle récupéré via le middleware
     const updateData = req.body;
 
-    console.log("🔍 Requête reçue :", { progressionId, serviceId, role, updateData });
 
     // Vérifier si la progression existe
     const progression = await Progression.findById(progressionId);
@@ -125,9 +129,13 @@ const updateServiceOrMenu = asyncHandler(async (req, res) => {
 
     // 🔹 Si l'utilisateur est un user, il ne peut modifier que le menu
     if (role === "user") {
-        const { items } = updateData;
+        const {
+            items
+        } = updateData;
 
-        let menu = await Menu.findOne({ service: serviceId });
+        let menu = await Menu.findOne({
+            service: serviceId
+        });
 
         if (!menu) {
             // Si aucun menu n'existe, on en crée un nouveau
@@ -164,7 +172,7 @@ const deleteService = asyncHandler(async (req, res) => {
     } = req.user;
 
     // Vérification du rôle administrateur
-    if (role !== "admin") {
+    if (role !== "superAdmin") {
         res.status(403);
         throw new Error("Accès restreint aux administrateurs");
     }
@@ -210,7 +218,7 @@ const deleteService = asyncHandler(async (req, res) => {
 
 
 // ** @desc    Supprimer un menu spécifique
-// ** @route   DELETE /api/progressions/:progressionId/services/:serviceId/menu
+// ** @route   DELETE /api/services/:progressionId/services/:serviceId/menu
 // ** @access  Private (Admin uniquement)
 
 const deleteMenu = asyncHandler(async (req, res) => {
@@ -223,7 +231,7 @@ const deleteMenu = asyncHandler(async (req, res) => {
     } = req.user;
 
     // Vérification du rôle administrateur
-    if (role !== "admin") {
+    if (role !== "superAdmin") {
         res.status(403);
         throw new Error("Accès restreint aux administrateurs");
     }
@@ -275,7 +283,7 @@ const deleteAllServicesForProgression = asyncHandler(async (req, res) => {
     } = req.user;
 
     // Vérification du rôle administrateur
-    if (role !== "admin") {
+    if (role !== "superAdmin") {
         res.status(403);
         throw new Error("Accès restreint aux administrateurs");
     }
